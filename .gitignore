@@ -1,0 +1,32 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment files (secrets!)
+*.env*
+!example.env
+
+# Minecraft server data (runs in Docker volume, never in repo)
+server-data/
+*.jar
+
+# Docker
+.docker/
+
+# Testing
+.pytest_cache/
+.coverage
+
+# Editors / IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
