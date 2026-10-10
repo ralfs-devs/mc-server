@@ -5,6 +5,7 @@ import sys
 import time
 from typing import Optional
 
+
 def read_motd() -> str:
     """Read the current MOTD from the running container.
 
@@ -12,11 +13,22 @@ def read_motd() -> str:
         str: The current MOTD value.
     """
     result = subprocess.run(
-        ["docker", "compose", "exec", "-T", "mc-server",
-         "grep", "^motd=", "/server/data/server.properties"],
-        capture_output=True, text=True, check=True,
+        [
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "mc-server",
+            "grep",
+            "^motd=",
+            "/server/data/server.properties",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     return result.stdout.strip()
+
 
 def get_container_status() -> Optional[str]:
     """Get the current status of the minecraft-server container.
@@ -25,12 +37,21 @@ def get_container_status() -> Optional[str]:
         str | None: Container status (e.g., 'Up X seconds'), None if not found.
     """
     result = subprocess.run(
-        ["docker", "ps", "--filter", "name=minecraft-server",
-         "--format", "{{.Status}}"],
-        capture_output=True, text=True, check=True,
+        [
+            "docker",
+            "ps",
+            "--filter",
+            "name=minecraft-server",
+            "--format",
+            "{{.Status}}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     status = result.stdout.strip()
     return status if status else None
+
 
 def get_restart_count() -> int:
     """Get the current restart count of the container.
@@ -39,11 +60,13 @@ def get_restart_count() -> int:
         int: Number of restarts.
     """
     result = subprocess.run(
-        ["docker", "inspect", "minecraft-server",
-         "--format", "{{.RestartCount}}"],
-        capture_output=True, text=True, check=True,
+        ["docker", "inspect", "minecraft-server", "--format", "{{.RestartCount}}"],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     return int(result.stdout.strip())
+
 
 def crash_server() -> None:
     """Kill the Minecraft server process to simulate an application crash.
@@ -55,6 +78,7 @@ def crash_server() -> None:
         ["docker", "compose", "exec", "mc-server", "pkill", "-f", "server.jar"],
         check=True,
     )
+
 
 def main() -> int:
     """Verify that the container restarts after a crash and data persists.
@@ -101,6 +125,7 @@ def main() -> int:
         return 0
     print("FAIL: data changed after crash-restart")
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

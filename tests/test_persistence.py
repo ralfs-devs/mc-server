@@ -3,6 +3,7 @@
 import subprocess
 import sys
 
+
 def read_motd() -> str:
     """Read the current MOTD from the running container.
 
@@ -10,11 +11,22 @@ def read_motd() -> str:
         str: The current MOTD value.
     """
     result = subprocess.run(
-        ["docker", "compose", "exec", "-T", "mc-server",
-         "grep", "^motd=", "/server/data/server.properties"],
-        capture_output=True, text=True, check=True,
+        [
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "mc-server",
+            "grep",
+            "^motd=",
+            "/server/data/server.properties",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     return result.stdout.strip()
+
 
 def compose(*args: str) -> subprocess.CompletedProcess:
     """Run a docker compose command.
@@ -26,6 +38,7 @@ def compose(*args: str) -> subprocess.CompletedProcess:
         subprocess.CompletedProcess: The finished subprocess result.
     """
     return subprocess.run(["docker", "compose", *args], check=True)
+
 
 def main() -> int:
     """Verify that configuration survives a restart cycle.
@@ -47,6 +60,7 @@ def main() -> int:
         return 0
     print("FAIL: configuration changed after restart")
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

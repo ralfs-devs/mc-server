@@ -6,6 +6,7 @@ import sys
 
 from mcstatus import JavaServer
 
+
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments.
 
@@ -17,6 +18,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=8888, help="Server port")
     parser.add_argument("--timeout", type=float, default=5.0, help="Timeout in seconds")
     return parser.parse_args()
+
 
 async def check(host, port, timeout) -> int:
     """Query the Minecraft server status.
@@ -37,11 +39,11 @@ async def check(host, port, timeout) -> int:
     print(f"Latency:  {status.latency:.0f} ms")
     return 0
 
+
 if __name__ == "__main__":
     args = parse_args()
     try:
         sys.exit(asyncio.run(check(args.host, args.port, args.timeout)))
     except OSError as exc:
         print(f"FAIL: could not reach {args.host}:{args.port} ({exc})", file=sys.stderr)
-        sys.exit(1)        
-        
+        sys.exit(1)
