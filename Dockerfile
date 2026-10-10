@@ -1,4 +1,5 @@
 FROM eclipse-temurin:25-jre-alpine
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
 WORKDIR /server
 
