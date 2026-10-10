@@ -2,4 +2,3 @@
 extends: default
 rules:
   truthy: disable
-  
