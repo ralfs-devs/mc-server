@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def check(host, port, timeout) -> int:
+async def check(host: str, port: int, timeout: float) -> int:
     """Query the Minecraft server status.
 
     Args:
