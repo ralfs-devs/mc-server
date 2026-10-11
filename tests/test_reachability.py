@@ -35,7 +35,6 @@ async def check(host, port, timeout) -> int:
     status = await server.async_status()
     print(f"Version:  {status.version.name}")
     print(f"Players:  {status.players.online}/{status.players.max}")
-    print(f"MOTD:     {status.motd.raw}")
     print(f"Latency:  {status.latency:.0f} ms")
     return 0
 
