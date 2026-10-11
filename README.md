@@ -15,6 +15,7 @@ purposes only.
 - [Usage](#usage)
   - [Configuration](#configuration)
   - [Testing](#testing)
+  - [Livecycle](#lifecycle)
 - [Project Structure](#project-structure)
 
 ## Prerequisites
@@ -94,8 +95,6 @@ docker compose up -d --build
 
 Available environment variables:
 
-Available environment variables:
-
 | Variable     | Description                       | Default            |
 | ------------ | --------------------------------- | ------------------ |
 | `MAX_MEMORY` | Maximum heap size (`-Xmx`)        | `1G`               |
@@ -105,6 +104,33 @@ Available environment variables:
 > **Note**: Critical configuration like tokens, passwords, or sensitive
 > information must not be stored in this repository. Use the `.env` file
 > exclusively for such data.
+
+### Lifecycle
+
+The container uses the restart policy `unless-stopped`: it restarts
+automatically after a crash or a VM reboot, but stays down once it is stopped
+explicitly.
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Restart it again:
+
+```bash
+docker compose up
+```
+
+World data and configuration survive a stop/start cycle because they are
+stored in the `mc-data` volume. Adding `-v` to the down command destroys the
+volumes and all data with it:
+
+```bash
+#Handle this command with care: all User Data will be lost.
+docker compose down -v
+```
 
 ### Testing
 
@@ -151,3 +177,5 @@ Docker on the remote host.
 - `.yamllint.yaml`: Yamllint configuration.
 - `.github/workflows/lint.yml`: CI pipeline running the pre-commit hooks.
 - `tests/`: Operator-facing test suite (reachability, persistence, crash recovery).
+- `project_checklist_commented.pdf`: Completed project checklist confirming
+  that all requirements from the DevSecOps course were fulfilled.
