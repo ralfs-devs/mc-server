@@ -94,15 +94,13 @@ docker compose up -d --build
 
 Available environment variables:
 
-| Variable | Description | Default |
-| ---------- | ------------- | --------- |
-| `EULA` | Accept the EULA (required) | `true` |
-| `MAX_MEMORY` | Maximum memory allocation | `2G` |
-| `MIN_MEMORY` | Minimum memory allocation | `1G` |
-| `MOTD` | Message of the day | `A Minecraft Server` |
-| `LEVEL_NAME` | World name | `world` |
-| `SERVER_PORT` | Container port | `25565` |
-| `HOST_PORT` | Host port mapping | `8888` |
+Available environment variables:
+
+| Variable     | Description                       | Default            |
+| ------------ | --------------------------------- | ------------------ |
+| `MAX_MEMORY` | Maximum heap size (`-Xmx`)        | `1G`               |
+| `MIN_MEMORY` | Initial heap size (`-Xms`)        | `512M`             |
+| `MOTD`       | Message of the day in server list | `Minecraft Server` |
 
 > **Note**: Critical configuration like tokens, passwords, or sensitive
 > information must not be stored in this repository. Use the `.env` file
@@ -135,3 +133,21 @@ Replace `<vm-ip>` with your server's public IP and `<vm-alias>` with your
 SSH alias from `~/.ssh/config`. The Docker commands require that your SSH
 key authenticates without password and that you have permission to run
 Docker on the remote host.
+
+## Project Structure
+
+- `Dockerfile`: Builds the server image based on `eclipse-temurin:25-jre-alpine`,
+  downloads the Minecraft server jar via the Mojang version manifest.
+- `docker-compose.yaml`: Defines the `mc-server` service, port mapping
+  (8888 → 25565), volume, and restart policy.
+- `entrypoint.sh`: Accepts the EULA, sets the MOTD on first start, starts the JVM.
+- `.dockerignore`: Reduces the build context to the files required in the image.
+- `.gitignore`: Excludes irrelevant and sensitive files from version control.
+- `example.env`: Template for the environment variables.
+- `requirements.txt`: Python dependencies for the test suite.
+- `setup.cfg`: Flake8 configuration.
+- `.pre-commit-config.yaml`: Pre-commit hooks (hadolint, yamllint,
+  markdownlint-cli2, black, flake8).
+- `.yamllint.yaml`: Yamllint configuration.
+- `.github/workflows/lint.yml`: CI pipeline running the pre-commit hooks.
+- `tests/`: Operator-facing test suite (reachability, persistence, crash recovery).
