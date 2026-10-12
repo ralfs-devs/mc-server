@@ -15,7 +15,7 @@ purposes only.
 - [Usage](#usage)
   - [Configuration](#configuration)
   - [Testing](#testing)
-  - [Livecycle](#lifecycle)
+  - [Lifecycle](#lifecycle)
 - [Project Structure](#project-structure)
 
 ## Prerequisites
@@ -30,8 +30,11 @@ To work with this repository you need the following tools installed on your mach
 
 The server requires explicit acceptance of the [Minecraft EULA](https://www.minecraft.net/en-us/eula)
 before it can run.  
-The `entrypoint.sh` script automatically sets `eula=true` on first start.  
-By deploying this server you declare that you accept the terms of the  
+Acceptance is configured via the `.env` file (`EULA=true`).  
+The `entrypoint.sh` script writes this value to `eula.txt` on startup.  
+If `EULA=false` (default in `example.env`), the server will refuse to start.
+
+By deploying this server you declare that you accept the terms of the
 Minecraft End User License Agreement.
 
 ## Quickstart
@@ -54,13 +57,29 @@ Minecraft End User License Agreement.
    cd mc-server
    ```
 
-4. Start the server
+4. Copy the example environment:
+
+   ```bash
+   cp example.env .env
+   ```
+
+5. Read the Minecraft [EULA](https://www.minecraft.net/en-us/eula) and accept it
+   by setting `EULA=true` with the following command:
+
+   > **Note**: Without acceptance, the server will not start.
+   > **Warning**: Only set `EULA=true` if you agree to the terms of the EULA:
+
+   ```bash
+   sed -i 's/^EULA=false/EULA=true/' .env
+   ```
+
+6. Start the server
 
    ```bash
    docker compose up -d --build
    ```
 
-5. Verify that the server is reachable
+7. Verify that the server is reachable
 
    ```bash
    python tests/test_reachability.py --host <vm-ip> --port 8888
@@ -80,26 +99,15 @@ This section explains how to configure and customize the server deployment.
 
 ### Configuration
 
-The server accepts configuration via environment variables. Copy the example
-environment file and adjust it to your needs:
-
-```bash
-cp example.env .env
-```
-
-Then restart the server:
-
-```bash
-docker compose up -d --build
-```
-
 Available environment variables:
 
-| Variable     | Description                       | Default            |
-| ------------ | --------------------------------- | ------------------ |
-| `MAX_MEMORY` | Maximum heap size (`-Xmx`)        | `1G`               |
-| `MIN_MEMORY` | Initial heap size (`-Xms`)        | `512M`             |
-| `MOTD`       | Message of the day in server list | `Minecraft Server` |
+| Variable     | Description                       | Default in example.env |
+| ------------ | --------------------------------- | ---------------------- |
+| `EULA`       | Acceptance of the Minecraft EULA  | `false`                |
+| `MAX_MEMORY` | Maximum heap size (`-Xmx`)        | `1G`                   |
+| `MIN_MEMORY` | Initial heap size (`-Xms`)        | `512M`                 |
+| `MOTD`       | Message of the day in server list | `Minecraft Server`     |
+| `HOST_PORT`  | Minecraft server's public port    | `8888`                 |
 
 > **Note**: Critical configuration like tokens, passwords, or sensitive
 > information must not be stored in this repository. Use the `.env` file
@@ -120,15 +128,15 @@ docker compose down
 Restart it again:
 
 ```bash
-docker compose up
+docker compose up -d
 ```
 
 World data and configuration survive a stop/start cycle because they are
-stored in the `mc-data` volume. Adding `-v` to the down command destroys the
-volumes and all data with it:
+stored persistently in the `mc-data` volume. Adding `-v` to the down command
+destroys the volumes and all data with it:
 
 ```bash
-#Handle this command with care: all User Data will be lost.
+# Careful: all user data will be lost.
 docker compose down -v
 ```
 
@@ -170,7 +178,7 @@ Docker on the remote host.
 - `.dockerignore`: Reduces the build context to the files required in the image.
 - `.gitignore`: Excludes irrelevant and sensitive files from version control.
 - `example.env`: Template for the environment variables.
-- `requirements.txt`: Python dependencies for the test suite.
+- `requirements.txt`: Python dependencies for the test suite and pre-commit hooks.
 - `setup.cfg`: Flake8 configuration.
 - `.pre-commit-config.yaml`: Pre-commit hooks (hadolint, yamllint,
   markdownlint-cli2, black, flake8).

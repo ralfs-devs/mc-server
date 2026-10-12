@@ -3,7 +3,7 @@ set -e
 
 cd /server/data
 
-echo "eula=${EULA:-true}" > eula.txt
+echo "eula=${EULA:-false}" > eula.txt
 
 if ! grep -q "^motd=" server.properties 2>/dev/null; then
     echo "motd=${MOTD:-Minecraft Server}" >> server.properties
