@@ -81,11 +81,7 @@ Minecraft End User License Agreement.
 
 7. Verify that the server is reachable
 
-   ```bash
-   python tests/test_reachability.py --host <vm-ip> --port 8888
-   ```
-
-   Alternatively open the multiplayer menu in your Minecraft Java client
+   Open the multiplayer menu in your Minecraft Java client
    and connect to `<vm-ip>:8888`.
 
 > **Warning**: The server starts with default values. Before exposing it to
