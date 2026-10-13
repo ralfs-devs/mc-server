@@ -5,12 +5,31 @@ import sys
 import time
 from typing import Optional
 
+MARKER_TEXT = "ralfs-devsecops-persistence-marker-2026"
 
-def read_motd() -> str:
-    """Read the current MOTD from the running container.
+
+def write_marker() -> None:
+    """Write the marker file into the persistent data volume."""
+    subprocess.run(
+        [
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "mc-server",
+            "sh",
+            "-c",
+            f"echo '{MARKER_TEXT}' > /server/data/persistence.marker",
+        ],
+        check=True,
+    )
+
+
+def read_marker() -> str:
+    """Read the marker file from the persistent data volume.
 
     Returns:
-        str: The current MOTD value.
+        str: The stored marker content.
     """
     result = subprocess.run(
         [
@@ -19,9 +38,8 @@ def read_motd() -> str:
             "exec",
             "-T",
             "mc-server",
-            "grep",
-            "^motd=",
-            "/server/data/server.properties",
+            "cat",
+            "/server/data/persistence.marker",
         ],
         capture_output=True,
         text=True,
@@ -86,12 +104,11 @@ def main() -> int:
     Returns:
         int: Exit code, 0 on success, 1 on failure.
     """
-    motd_before: str = read_motd()
-    print(f"MOTD before crash: {motd_before}")
-
+    write_marker()
     restart_count_before: int = get_restart_count()
     print(f"Restart count before crash: {restart_count_before}")
-
+    marker_before: str = read_marker()
+    print(f"Marker before crash:      {marker_before}")
     print("Triggering crash...")
     try:
         crash_server()
@@ -104,27 +121,28 @@ def main() -> int:
         time.sleep(1)
         if get_restart_count() > restart_count_before:
             break
+
     restart_count_after: int = get_restart_count()
     print(f"Restart count after crash: {restart_count_after}")
 
     if restart_count_after <= restart_count_before:
         print("FAIL: container did not restart (restart count unchanged)")
         return 1
+
     status: Optional[str] = get_container_status()
     if not status or "Up" not in status:
         print(f"FAIL: container not running after crash (status: {status})")
         return 1
-
     print(f"Container status after restart: {status}")
 
-    motd_after: str = read_motd()
-    print(f"MOTD after restart:  {motd_after}")
+    marker_after: str = read_marker()
+    print(f"Marker after crash:      {marker_after}")
+    if MARKER_TEXT != marker_after:
+        print("FAIL: marker lost or changed after crash-restart")
+        return 1
 
-    if motd_before == motd_after:
-        print("PASS: container restarted and data persisted")
-        return 0
-    print("FAIL: data changed after crash-restart")
-    return 1
+    print("PASS: container restarted and data persisted")
+    return 0
 
 
 if __name__ == "__main__":

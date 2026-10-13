@@ -1,14 +1,33 @@
-"""Persistence test for the Minecraft server configuration."""
+"""Persistence test for the Minecraft server data volume."""
 
 import subprocess
 import sys
 
+MARKER_TEXT = "ralfs-devsecops-persistence-marker-2026"
 
-def read_motd() -> str:
-    """Read the current MOTD from the running container.
+
+def write_marker() -> None:
+    """Write the marker file into the persistent data volume."""
+    subprocess.run(
+        [
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "mc-server",
+            "sh",
+            "-c",
+            f"echo '{MARKER_TEXT}' > /server/data/persistence.marker",
+        ],
+        check=True,
+    )
+
+
+def read_marker() -> str:
+    """Read the marker file from the persistent data volume.
 
     Returns:
-        str: The current MOTD value.
+        str: The stored marker content.
     """
     result = subprocess.run(
         [
@@ -17,9 +36,8 @@ def read_motd() -> str:
             "exec",
             "-T",
             "mc-server",
-            "grep",
-            "^motd=",
-            "/server/data/server.properties",
+            "cat",
+            "/server/data/persistence.marker",
         ],
         capture_output=True,
         text=True,
@@ -41,24 +59,24 @@ def compose(*args: str) -> subprocess.CompletedProcess:
 
 
 def main() -> int:
-    """Verify that configuration survives a restart cycle.
+    """Verify that volume data survives a restart cycle.
 
     Returns:
         int: Exit code, 0 on success, 1 on failure.
     """
-    motd_before: str = read_motd()
-    print(f"MOTD before restart: {motd_before}")
+    write_marker()
+    print(f"Marker before restart: {read_marker()}")
 
     compose("down")
     compose("up", "-d")
 
-    motd_after: str = read_motd()
-    print(f"MOTD after restart:  {motd_after}")
+    marker_after: str = read_marker()
+    print(f"Marker after restart:  {marker_after}")
 
-    if motd_before == motd_after:
-        print("PASS: configuration persisted across restart")
+    if MARKER_TEXT == marker_after:
+        print("PASS: volume data persisted across restart")
         return 0
-    print("FAIL: configuration changed after restart")
+    print("FAIL: marker lost or changed after restart")
     return 1
 
 
