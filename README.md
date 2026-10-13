@@ -45,6 +45,10 @@ Minecraft End User License Agreement.
    ssh <your-vm>
    ```
 
+   > **Note**: The Quickstart assumes a cloud VM deployment per assignment requirements.
+   > For local testing, skip the SSH step and start from step 2 in an empty folder
+   > on your machine.
+
 2. Clone the repository
 
    ```bash
