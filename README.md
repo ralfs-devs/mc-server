@@ -52,7 +52,7 @@ Minecraft End User License Agreement.
 2. Clone the repository
 
    ```bash
-   git clone https://github.com/ralfs-devs/mc-server.git
+   git clone git@github.com:ralfs-devs/mc-server.git
    ```
 
 3. Navigate into the project folder
