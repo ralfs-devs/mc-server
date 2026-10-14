@@ -1,0 +1,16 @@
+---
+services:
+  mc-server:
+    build: .
+    image: mc-server:latest
+    container_name: minecraft-server
+    ports:
+      - "${HOST_PORT}:25565"
+    volumes:
+      - mc-data:/server/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+volumes:
+  mc-data:
